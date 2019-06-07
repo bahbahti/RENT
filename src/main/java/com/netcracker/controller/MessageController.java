@@ -1,5 +1,7 @@
 package com.netcracker.controller;
 
+import com.netcracker.converter.Converter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,17 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class MessageController {
 
     @Value("${build.version}")
-    private String projectVersion;
+    private String buildVersion;
 
-    String javaVersion = Runtime.class.getPackage().getImplementationVersion();
+
+    @Autowired
+    Converter converter;
 
     @GetMapping
     public String getInfo() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("{");
-        sb.append("\nApplication version: " + projectVersion);
-        sb.append(",\nJava version: " + javaVersion);
-        sb.append("\n}");
-        return sb.toString();
+        return converter.convertPojoToJSON(buildVersion);
     }
 }
