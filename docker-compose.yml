@@ -1,0 +1,28 @@
+version: '3'
+services:
+  data_base:
+    container_name: postgres-container
+    image: postgres:9.6.3
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: psg_db
+    restart: always
+
+  web:
+    container_name: web
+    build: .
+    image: web:latest
+    depends_on:
+      - data_base
+    ports:
+      - "8080:8080"
+    links:
+      - data_base
+    environment:
+       SPRING_DATASOURCE_URL: jdbc:postgresql://data_base:5432/psg_db
+       SPRING_DATASOURCE_USERNAME: postgres
+       SPRING_DATASOURCE_PASSWORD: postgres
+    restart: always
