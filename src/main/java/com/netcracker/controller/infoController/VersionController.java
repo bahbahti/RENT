@@ -1,4 +1,4 @@
-package com.netcracker.controller;
+package com.netcracker.controller.infoController;
 
 import com.netcracker.pojoServices.VersionDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,9 +19,6 @@ public class VersionController {
     @GetMapping
     public ResponseEntity<VersionDTO> getInfo(){
         VersionDTO pojo = VersionDTO.create(javaVersion, buildVersion);
-        if(pojo == null) {
-            throw new NullPointerException("ERROR");
-        }
         return ResponseEntity.ok().body(pojo);
     }
 }

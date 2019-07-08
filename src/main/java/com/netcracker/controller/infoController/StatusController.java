@@ -1,4 +1,4 @@
-package com.netcracker.controller;
+package com.netcracker.controller.infoController;
 
 import com.netcracker.pojoServices.StatusDTO;
 import org.springframework.beans.factory.annotation.Autowired;
