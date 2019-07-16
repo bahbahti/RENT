@@ -1,6 +1,7 @@
 package com.netcracker.entity;
 
 import com.fasterxml.jackson.annotation.*;
+import com.netcracker.entity.repairStatusEnum.RepairStatus;
 import lombok.Data;
 import javax.persistence.*;
 import java.sql.Date;
@@ -31,13 +32,16 @@ public class Car {
     @Column(name = "storage", nullable = false)
     private String storage;
 
-    @OneToMany(mappedBy = "carId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "carId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, targetEntity = Order.class)
     private List<Order> orders;
+
+    @OneToMany(mappedBy = "carId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, targetEntity = RepairOrder.class)
+    private List<RepairOrder> repairOrders;
 
     @Transient
     private Boolean isAvailable = true;
 
-    //для возможности изменения заказа с параметром isAnavailable = false
+    //для возможности изменения (UPDATE) заказа с параметром isAnavailable = false
     @Transient
     private Integer orderIdThatIsUnavailable;
 
@@ -45,7 +49,7 @@ public class Car {
     @Transient
     private Date lastOrderDay;
 
-    @JsonSetter(value = "isAvailable")
+    @JsonGetter(value = "isAvailable")
     public Boolean getIsAvailable() {
         return isAvailable;
     }
@@ -57,32 +61,31 @@ public class Car {
 
     @PostLoad
     private void postLoad() {
-        //на данную машину заказов нет
-        if (orders.isEmpty()) {
-            isAvailable = true;
-        }
 
-        //на данную машину заказ только один
-        else if (orders.size() == 1){
-            if (orders.iterator().next().getEndDay() == null) {
-                orderIdThatIsUnavailable = orders.iterator().next().getId();
-                isAvailable = false;
-            }
-            else {
+            //на данную машину заказов нет
+            if (orders.isEmpty()) {
                 isAvailable = true;
-                lastOrderDay = orders.iterator().next().getEndDay();
             }
-        }
 
-        //на данную машину заказов много
+            //на данную машину заказ только один
+            else if (orders.size() == 1) {
+                if (orders.iterator().next().getEndDay() == null) {
+                    orderIdThatIsUnavailable = orders.iterator().next().getId();
+                    isAvailable = false;
+                } else {
+                    isAvailable = true;
+                    lastOrderDay = orders.iterator().next().getEndDay();
+                }
+            }
+
+            //на данную машину заказов много
         else {
             for (int i = 0; i < orders.size() - 1; i++) {
                 for (int k = i + 1; k < orders.size(); k++) {
                     if (orders.get(i).getEndDay() == null || orders.get(k).getEndDay() == null) {
-                        if(orders.get(i).getEndDay() == null) {
+                        if (orders.get(i).getEndDay() == null) {
                             orderIdThatIsUnavailable = orders.get(i).getId();
-                        }
-                        else {
+                        } else {
                             orderIdThatIsUnavailable = orders.get(k).getId();
                         }
                         lastOrderDay = null;
@@ -99,9 +102,17 @@ public class Car {
 
             if (lastOrderDay == null) {
                 isAvailable = false;
-            }
-            else {
+            } else {
                 isAvailable = true;
+            }
+
+        }
+
+        //проверка на поломки
+        for (RepairOrder repairOrder : repairOrders) {
+            if (!repairOrder.getRepairStatus().equals(RepairStatus.FINISHED)) {
+                isAvailable = false;
+                break;
             }
         }
     }

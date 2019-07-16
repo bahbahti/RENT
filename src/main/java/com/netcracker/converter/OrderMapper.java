@@ -3,7 +3,6 @@ package com.netcracker.converter;
 import com.netcracker.dto.OrderDTO;
 import com.netcracker.entity.Order;
 import org.mapstruct.Mapper;
-
 import java.util.List;
 
 @Mapper

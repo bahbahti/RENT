@@ -19,6 +19,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -35,6 +36,8 @@ public class OrderController {
 
     @Autowired
     private OrderMapper orderMapper;
+
+    boolean isUpdateMethod;
 
     @GetMapping("/orders")
     public ResponseEntity<List<OrderDTO>> getAllOrders() {
@@ -55,9 +58,13 @@ public class OrderController {
     @PostMapping("/orders")
     public ResponseEntity<OrderDTO> createOrder(@Valid @RequestBody OrderDTO orderDTOToSave)
             throws MethodArgumentNotValidException, HttpMessageNotReadableException,
-            BadRequestException {
+            BadRequestException, ResourceNotFoundException {
+        isUpdateMethod = false;
+        if(orderDTOToSave.getId() != null && orderRepository.findById(orderDTOToSave.getId()).isPresent()) {
+            throw new BadRequestException("Such id already exists");
+        }
         Order orderToSave = orderMapper.toOrder(orderDTOToSave);
-        checkAvailabilityOfCar(orderToSave);
+        checkAvailabilityOfCar(orderToSave, isUpdateMethod);
         final Order createdOrder = orderRepository.save(orderToSave);
         final OrderDTO createdOrderDTO = orderMapper.toOrderDTO(createdOrder);
         return ResponseEntity.ok().body(createdOrderDTO);
@@ -76,11 +83,12 @@ public class OrderController {
     public ResponseEntity<OrderDTO> updateOrder(@PathVariable(value = "id") Integer orderId, @Valid @RequestBody OrderDTO newOrderDTO)
             throws ResourceNotFoundException, MethodArgumentNotValidException, HttpMessageNotReadableException,
             HibernateException, DataIntegrityViolationException, BadRequestException {
+        isUpdateMethod = true;
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
         Order newOrder = orderMapper.toOrder(newOrderDTO);
         newOrder.setId(orderId);
-        checkAvailabilityOfCar(newOrder);
+        checkAvailabilityOfCar(newOrder, isUpdateMethod);
         order.setStartDay(newOrder.getStartDay());
         order.setCarId(newOrder.getCarId());
         order.setCustomerId(newOrder.getCustomerId());
@@ -90,15 +98,15 @@ public class OrderController {
         return ResponseEntity.ok().body(updatedOrderDTO);
     }
 
-    public void checkAvailabilityOfCar(Order orderToSave) throws BadRequestException {
-        Car car = carRepository.findById(orderToSave.getCarId()).orElseThrow(() -> new BadRequestException("Car not found with id: " + orderToSave.getCarId()));
-        Customer customer = customerRepository.findById(orderToSave.getCustomerId()).orElseThrow(() -> new BadRequestException("Customer not found with id: " + orderToSave.getCustomerId()));
-        if (car.getOrderIdThatIsUnavailable() == null) {
+    public void checkAvailabilityOfCar(Order orderToSave, boolean updateMethod) throws BadRequestException, ResourceNotFoundException {
+        Car car = carRepository.findById(orderToSave.getCarId()).orElseThrow(() -> new ResourceNotFoundException("Car not found with id: " + orderToSave.getCarId()));
+        Customer customer = customerRepository.findById(orderToSave.getCustomerId()).orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + orderToSave.getCustomerId()));
+        if (!updateMethod) {
             if (!car.getIsAvailable()) {
                 throw new BadRequestException("Car is unavailable");
             } else if (car.getLastOrderDay() != null) {
                 if (orderToSave.getStartDay().before(car.getLastOrderDay()) || orderToSave.getStartDay().equals(car.getLastOrderDay())) {
-                    throw new BadRequestException("You can rent this car only after " + car.getLastOrderDay());
+                    throw new BadRequestException("You can rent this car only after " + new SimpleDateFormat("dd.MM.yyyy").format(car.getLastOrderDay()));
                 }
             }
         } else {
@@ -106,7 +114,7 @@ public class OrderController {
                 throw new BadRequestException("Car is unavailable");
             } else if (car.getLastOrderDay() != null) {
                 if (orderToSave.getStartDay().before(car.getLastOrderDay()) || orderToSave.getStartDay().equals(car.getLastOrderDay())) {
-                    throw new BadRequestException("You can rent this car only after " + car.getLastOrderDay());
+                    throw new BadRequestException("You can rent this car only after " + new SimpleDateFormat("dd.MM.yyyy").format(car.getLastOrderDay()));
                 }
             }
         }

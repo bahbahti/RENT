@@ -14,6 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -72,7 +73,14 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     }
 
     @ExceptionHandler(value = DataIntegrityViolationException.class)
-    public ResponseEntity<BadRequestDTO> handleHibernateException(DataIntegrityViolationException ex) { ;
+    public ResponseEntity<BadRequestDTO> handleDataIntegrityViolationException(DataIntegrityViolationException ex) { ;
+        String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+        BadRequestDTO tableDTO = BadRequestDTO.create(message);
+        return ResponseEntity.status(BAD_REQUEST).body(tableDTO);
+    }
+
+    @ExceptionHandler(value = ResourceAccessException.class)
+    public ResponseEntity<BadRequestDTO> handleResourceAccessException(ResourceAccessException ex) { ;
         String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
         BadRequestDTO tableDTO = BadRequestDTO.create(message);
         return ResponseEntity.status(BAD_REQUEST).body(tableDTO);

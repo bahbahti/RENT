@@ -15,9 +15,11 @@ INSERT INTO customers (first_name, last_name, area_of_living, discount, passport
 INSERT INTO customers (first_name, last_name, area_of_living, passport_number, phone_number) VALUES ('Artem', 'Myakishev', 'Nizhegorodskiy', 321315, 987112255);
 INSERT INTO customers (first_name, last_name, area_of_living, discount, passport_number) VALUES ('Egor','Erovenko', 'Autozavodskiy',13, 327316);
 
-INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('23.02.2018', '23.02.2018',3,1);
+INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('2018-02-23', '2018-02-23',3,1);
 INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('2018-08-12', '2018-08-27',6,2);
 INSERT INTO orders(start_day, customer_id, car_id) VALUES ('2018-08-21', 2,6);
 INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('2018-01-02', '2018-02-03',4,3);
 INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('2018-06-14', '2018-07-24', 5,4);
 INSERT INTO orders(start_day, customer_id, car_id) VALUES ('2018-05-17',5,5);
+INSERT INTO orders(start_day, customer_id, car_id) VALUES ('2018-07-25', 5,4);
+INSERT INTO orders(start_day, end_day, customer_id, car_id) VALUES ('2018-02-17', '2018-04-19',1,3);

@@ -33,7 +33,9 @@ public class Customer {
     @Column(name = "phone_number", nullable = true)
     private Integer phoneNumber;
 
-    @OneToMany(mappedBy = "customerId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customerId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, targetEntity = Order.class)
     private List<Order> orders;
 
+    @OneToMany(mappedBy = "customerId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, targetEntity = RepairOrder.class)
+    private List<RepairOrder> repairOrders;
 }

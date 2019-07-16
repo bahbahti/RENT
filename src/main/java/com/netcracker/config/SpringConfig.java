@@ -1,21 +1,16 @@
 package com.netcracker.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.netcracker.converter.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
-import org.springframework.format.support.DefaultFormattingConversionService;
-import org.springframework.format.support.FormattingConversionService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Configuration
 @ComponentScan(basePackages = "com.netcracker")
@@ -61,6 +56,21 @@ public class SpringConfig {
     @Bean
     public OrderMapper orderMapper() {
         return new OrderMapperImpl();
+    }
+
+    @Bean
+    public RepairOrderMapper repairOrderMapper() {
+        return new RepairOrderMapperImpl();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public HttpHeaders httpHeaders() {
+        return new HttpHeaders();
     }
 
 }
