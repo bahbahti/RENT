@@ -2,12 +2,13 @@ package com.netcracker.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netcracker.entity.repairStatusEnum.RepairStatus;
 import lombok.Data;
 import javax.validation.constraints.*;
 import java.sql.Date;
 
 @Data
-public class OrderDTO {
+public class RepairOrderDTO {
 
     @JsonProperty("id")
     @Min(value = 1, message = "Id can't be less than 1")
@@ -19,17 +20,28 @@ public class OrderDTO {
     private Integer carId;
 
     @JsonProperty("customer_id")
-    @Min(value = 1, message = "Id of the customer can't be less than 1")
-    @NotNull(message = "Enter id of the customer")
+    @Null(message = "You cannot enter customer id")
     private Integer customerId;
 
     @JsonProperty("start_day")
     @JsonFormat(pattern="dd.MM.yyyy")
-    @NotNull(message = "Enter start startRepairDay of the order")
-    private Date startDay;
+    @NotNull(message = "Enter start day of the repair")
+    private Date startRepairDay;
 
     @JsonProperty("end_day")
     @JsonFormat(pattern="dd.MM.yyyy")
-    private Date endDay;
+    @Null(message = "You cannot enter end day of repair")
+    private Date endRepairDay;
+
+    @JsonProperty("repair_id_external")
+    @Null(message = "You cannot enter id of external service")
+    private Integer repairIdExternal;
+
+    @JsonProperty("status_of_repair")
+    private RepairStatus repairStatus = RepairStatus.PENDING;
+
+    @JsonProperty("price")
+    @Null(message = "You cannot enter price of repair. It will be counted in time")
+    private Integer price;
 
 }

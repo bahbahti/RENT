@@ -4,9 +4,7 @@ package com.netcracker.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
-import javax.persistence.Transient;
 import javax.validation.constraints.*;
-import java.sql.Date;
 
 @Data
 public class CarDTO {

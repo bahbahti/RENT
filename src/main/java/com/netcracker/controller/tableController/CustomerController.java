@@ -1,10 +1,15 @@
 package com.netcracker.controller.tableController;
 
+import com.netcracker.converter.CarMapper;
 import com.netcracker.converter.CustomerMapper;
+import com.netcracker.dto.CarDTO;
 import com.netcracker.dto.CustomerDTO;
+import com.netcracker.entity.Car;
 import com.netcracker.entity.Customer;
 import com.netcracker.exception.ResourceNotFoundException;
+import com.netcracker.repository.CarRepository;
 import com.netcracker.repository.CustomerRepository;
+import com.netcracker.repository.filtering.CustomerRepositoryForFilterQuery;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,11 +28,23 @@ public class CustomerController {
     private CustomerRepository customerRepository;
 
     @Autowired
+    private CustomerRepositoryForFilterQuery customerRepositoryForFilterQuery;
+
+    @Autowired
+    private CarRepository carRepository;
+
+    @Autowired
+    private CarMapper carMapper;
+
+    @Autowired
     private CustomerMapper customerMapper;
 
     @GetMapping("/customers")
-    public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
-        List<Customer> customers = customerRepository.findAll();
+    public ResponseEntity<List<CustomerDTO>> getAllCustomers(@RequestParam(name = "id", required = false) List<Integer> id, @RequestParam(name = "firstName", required = false, defaultValue = "") List<String> firstName,
+                                                             @RequestParam(name = "lastName", required = false, defaultValue = "") List<String> lastName, @RequestParam(name = "areaOfLiving", required = false, defaultValue = "") List<String> areaOfLiving,
+                                                             @RequestParam(name = "discount", required = false) List<Integer> discount, @RequestParam(name = "passportNumber", required = false) List<Integer> passportNumber,
+                                                             @RequestParam(name = "phoneNumber", required = false) List<Integer> phoneNumber) {
+        List<Customer> customers = customerRepositoryForFilterQuery.queryFunction(id, firstName, lastName, areaOfLiving, discount, passportNumber, phoneNumber);
         List<CustomerDTO> customersDTO = customerMapper.toCustomerDTOs(customers);
         return ResponseEntity.ok().body(customersDTO);
     }
@@ -39,6 +56,16 @@ public class CustomerController {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
         CustomerDTO customerDTO = customerMapper.toCustomerDTO(customer);
         return ResponseEntity.ok().body(customerDTO);
+    }
+
+    @GetMapping("/customers/{id}/cars")
+    public ResponseEntity<List<CarDTO>> getAllCarsOfCernainCustomer(@PathVariable(value = "id") Integer customerId)
+            throws ResourceNotFoundException {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));
+        List<Car> cars = carRepository.findAllCarsOfCernainCustomer(customerId);
+        List<CarDTO> carsDTO = carMapper.toCarDTOs(cars);
+        return ResponseEntity.ok().body(carsDTO);
     }
 
     @PostMapping("/customers")

@@ -3,7 +3,6 @@ package com.netcracker.converter;
 import com.netcracker.dto.CarDTO;
 import com.netcracker.entity.Car;
 import org.mapstruct.Mapper;
-
 import java.util.List;
 
 @Mapper

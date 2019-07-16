@@ -16,7 +16,7 @@ id | integer |  NO | primary key | unique
 name | character varying |  NO |  - |  -
 cost | integer |  NO |  - |  -
 storage | character varying |  NO |  - |  -
-registration_number | integer | NO | - |  unique
+registration_number | character varying | NO | - |  unique
 color | character varying | NO | - |  -
 
 
@@ -31,8 +31,8 @@ first_name | character varying |  NO |  composite key |  unique
 last_name | character varying |  NO |  composite key |  unique 
 area_of_living | character varying |  NO |  - |  - 
 discount | integer |  YES |  - |  - 
-passport_number | bigint |  NO |  - |  unique 
-phone_number | bigint |  YES |  - |  - 
+passport_number | integer |  NO |  - |  unique 
+phone_number | integer |  YES |  - |  - 
 
 
 
